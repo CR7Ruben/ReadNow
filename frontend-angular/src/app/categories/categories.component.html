@@ -1,0 +1,11 @@
+<div class="categories-page">
+  <h1 class="page-title">Categorías de Libros</h1>
+
+  <div class="categories-grid">
+    <div class="category-card" *ngFor="let category of categories">
+      <h2>{{ category.name }}</h2>
+      <p>{{ category.description }}</p>
+      <button>Ver Libros</button>
+    </div>
+  </div>
+</div>
