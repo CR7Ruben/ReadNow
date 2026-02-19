@@ -2,10 +2,21 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CategoriesComponent } from './categories/categories.component';
 import { PremiumComponent } from './premium/premium.component';
+import { premiumGuard } from './core/services/premium.guard';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },       // Inicio
+  { path: '', component: DashboardComponent },
   { path: 'categorias', component: CategoriesComponent },
+
+  // Página pública para comprar premium
   { path: 'premium', component: PremiumComponent },
-  { path: '**', redirectTo: '' }                     // cualquier ruta desconocida va a inicio
+
+  // Ruta protegida de ejemplo
+  {
+    path: 'contenido-premium',
+    component: PremiumComponent,
+    canActivate: [premiumGuard]
+  },
+
+  { path: '**', redirectTo: '' }
 ];

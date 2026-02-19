@@ -13,6 +13,11 @@ export class AuthService {
 
   private user: User | null = null;
 
+  constructor() {
+    const stored = localStorage.getItem('user');
+    this.user = stored ? JSON.parse(stored) : null;
+  }
+
   login(user: User) {
     this.user = user;
     localStorage.setItem('user', JSON.stringify(user));
@@ -24,22 +29,25 @@ export class AuthService {
   }
 
   getUser(): User | null {
-    if (!this.user) {
-      const stored = localStorage.getItem('user');
-      this.user = stored ? JSON.parse(stored) : null;
-    }
     return this.user;
   }
 
   isLogged(): boolean {
-    return !!this.getUser();
+    return !!this.user;
   }
 
   isAdmin(): boolean {
-    return this.getUser()?.role === 'ADMIN';
+    return this.user?.role === 'ADMIN';
   }
 
   isPremium(): boolean {
-    return this.getUser()?.role === 'PREMIUM';
+    return this.user?.role === 'PREMIUM';
+  }
+
+  upgradeToPremium() {
+    if (this.user) {
+      this.user.role = 'PREMIUM';
+      localStorage.setItem('user', JSON.stringify(this.user));
+    }
   }
 }

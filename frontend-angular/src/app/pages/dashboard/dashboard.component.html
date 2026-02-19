@@ -1,48 +1,76 @@
-<!-- Contenido principal -->
+<!-- CONTENIDO PRINCIPAL -->
 <div class="rn-container">
   <main class="rn-main">
-    <!-- Sección hero con título y libros -->
+
+    <!-- HERO -->
     <section class="rn-hero">
-      <h1 class="rn-title">Tu Momento de lectura a llegado</h1>
+      <h1 class="rn-title">Tu Momento de lectura ha llegado</h1>
       <h2 class="rn-subtitle">Descubre Nuevos Libros</h2>
 
-      <!-- Carousel de libros -->
+      <!-- CAROUSEL -->
       <div class="rn-carousel">
         <button class="rn-arrow">‹</button>
+
         <div class="rn-books">
-          <div class="rn-book" *ngFor="let b of books">
+
+          <!-- LIBROS -->
+          <div class="rn-book" *ngFor="let b of books" [class.locked]="b.premium && !auth.isPremium()"
+            (click)="goToBook(b)">
+
             <img [src]="b.thumbnail" alt="Portada del libro">
-            <div class="rn-book-overlay">
-              <h3>{{b.title || 'Título del Libro'}}</h3>
-              <p>{{b.author || 'Autor'}}</p>
+
+            <!-- OVERLAY PREMIUM -->
+            <div class="lock-overlay" *ngIf="b.premium && !auth.isPremium()">
+              🔒 Solo Premium
             </div>
+
+            <div class="rn-book-overlay">
+              <h3>{{b.title}}</h3>
+              <p>{{b.author}}</p>
+            </div>
+
           </div>
+          <!-- FIN LIBROS -->
+
         </div>
+
         <button class="rn-arrow">›</button>
       </div>
     </section>
-    
-    <!-- Sidebar con recomendaciones -->
+
+    <!-- SIDEBAR -->
     <div class="rn-sidebar">
+
+      <!-- RECOMENDADOS -->
       <div class="rn-sidebar-section">
         <h3 class="rn-sidebar-title">Recomendados para Ti</h3>
+
         <div class="rn-recommended-list">
           <div class="rn-recommended-item" *ngFor="let rec of recommendedBooks">
+
             <div class="rn-rec-dot"></div>
             <span>{{rec.title}}</span>
+
           </div>
         </div>
       </div>
-      
+
+      <!-- POPULARES -->
       <div class="rn-sidebar-section">
         <h3 class="rn-sidebar-title">Más Populares</h3>
+
         <div class="rn-recommended-list">
           <div class="rn-recommended-item" *ngFor="let pop of popularBooks">
+
             <div class="rn-rec-dot"></div>
             <span>{{pop.title}}</span>
+
           </div>
         </div>
       </div>
+
     </div>
+    <!-- FIN SIDEBAR -->
+
   </main>
 </div>

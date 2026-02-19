@@ -1,108 +1,151 @@
 <nav class="rn-navbar">
+  <!-- IZQUIERDA -->
   <div class="rn-left">
     <img src="assets/ReadNowLogo1.png" alt="ReadNow Logo">
     <span>Read<b class="now">Now</b></span>
   </div>
 
+  <!-- CENTRO -->
   <div class="rn-center">
-  <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
-  <a routerLink="/categorias" routerLinkActive="active">Categorías</a>
-  <a routerLink="/premium" routerLinkActive="active">Premium</a>
-</div>
+    <a routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      Inicio
+    </a>
+    <a routerLink="/categorias" routerLinkActive="active">
+      Categorías
+    </a>
+    <a routerLink="/premium" routerLinkActive="active">
+      Premium
+    </a>
+  </div>
 
+  <!-- BADGE PREMIUM -->
+  <span *ngIf="auth.isPremium()" class="premium-badge">
+    👑 PREMIUM
+  </span>
 
+  <!-- DERECHA -->
   <div class="rn-right">
+
+    <!-- BOTÓN USUARIO -->
     <button class="user-btn" (click)="toggleLogin()">👤</button>
 
-    <!-- Login Float -->
+    <!-- LOGIN FLOAT -->
     <div class="login-float" *ngIf="showLogin">
       <form [formGroup]="form" (ngSubmit)="login()">
 
+        <!-- EMAIL -->
         <div class="form-group">
           <label for="loginEmail">Correo Electrónico</label>
-          <input formControlName="email" id="loginEmail" type="email" placeholder="tu@email.com"
+          <input id="loginEmail" type="email" formControlName="email" placeholder="tu@email.com"
             [class.invalid]="form.get('email')?.invalid && form.get('email')?.touched">
           <div class="error-message" *ngIf="form.get('email')?.invalid && form.get('email')?.touched">
-            Por favor ingresa un correo válido
+            Ingresa un correo válido
           </div>
         </div>
 
-        <div class="form-group password-group">
+        <!-- PASSWORD -->
+        <div class="form-group">
           <label for="loginPassword">Contraseña</label>
+
           <div class="password-input-wrapper">
-            <input formControlName="password" id="loginPassword"
-              [type]="showLoginPassword ? 'text' : 'password'"
-              placeholder="••••••••"
-              [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+            <input id="loginPassword" [type]="showLoginPassword ? 'text' : 'password'" formControlName="password"
+              placeholder="••••••••" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+
+            <span class="toggle-password" (click)="showLoginPassword = !showLoginPassword">
+              {{ showLoginPassword ? '🙈' : '👀' }}
+            </span>
           </div>
-          
         </div>
 
-        <button type="submit" [disabled]="form.invalid">Entrar</button>
+        <button type="submit" [disabled]="form.invalid">
+          Entrar
+        </button>
 
         <div class="register-link">
           ¿No tienes cuenta?
-          <a (click)="showRegisterModal()" class="register-text">Crea una aquí</a>
+          <span (click)="showRegisterModal()" class="register-text">
+            Crea una aquí
+          </span>
         </div>
       </form>
     </div>
   </div>
 </nav>
 
-<!-- Modal de Registro -->
+<!-- ================= REGISTRO MODAL ================= -->
+
 <div class="modal-overlay" *ngIf="showRegister" (click)="closeRegisterModal($event)">
   <div class="register-modal">
-    <button class="close-btn" (click)="closeRegisterModal()">&times;</button>
+
+    <button class="close-btn" (click)="closeRegisterModal()">
+      &times;
+    </button>
 
     <h2 class="modal-title">Crear Cuenta</h2>
-    <p class="modal-subtitle">Únete a ReadNow y descubre miles de libros</p>
+    <p class="modal-subtitle">
+      Únete a ReadNow y descubre miles de libros
+    </p>
 
     <form [formGroup]="registerForm" (ngSubmit)="onRegister()" class="register-form">
+
+      <!-- EMAIL -->
       <div class="form-group">
         <label for="email">Correo Electrónico</label>
-        <input formControlName="email" id="email" type="email" placeholder="tu@email.com"
+        <input id="email" type="email" formControlName="email" placeholder="tu@email.com"
           [class.invalid]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
         <div class="error-message" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-          Por favor ingresa un correo válido
+          Ingresa un correo válido
         </div>
       </div>
 
+      <!-- USERNAME -->
       <div class="form-group">
         <label for="username">Nombre de Usuario</label>
-        <input formControlName="username" id="username" type="text" placeholder="Usuario123"
+        <input id="username" type="text" formControlName="username" placeholder="Usuario123"
           [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
-        <div class="error-message" *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched">
-          El usuario debe tener al menos 8 caracteres
-        </div>
-        <div class="error-message" *ngIf="registerForm.get('username')?.errors?.['required'] && registerForm.get('username')?.touched">
-          El usuario es obligatorio
+        <div class="error-message"
+          *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched">
+          Mínimo 8 caracteres
         </div>
       </div>
 
-      <div class="form-group password-group">
+      <!-- PASSWORD -->
+      <div class="form-group">
         <label for="password">Contraseña</label>
+
         <div class="password-input-wrapper">
-          <input formControlName="password" id="password"
-            [type]="showRegisterPassword ? 'text' : 'password'" placeholder="••••••••"
+          <input id="password" [type]="showRegisterPassword ? 'text' : 'password'" formControlName="password"
+            placeholder="••••••••"
             [class.invalid]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+
+          <span class="toggle-password" (click)="showRegisterPassword = !showRegisterPassword">
+            {{ showRegisterPassword ? '🙈' : '👀' }}
+          </span>
         </div>
-        <div class="password-requirements">
-          <ul>
-            <li [class.valid]="hasMinLength">✓ Mínimo 12 caracteres</li>
-            <li [class.valid]="hasUpperCase">✓ Al menos una mayúscula</li>
-            <li [class.valid]="hasLowerCase">✓ Al menos una minúscula</li>
-            <li [class.valid]="hasNumber">✓ Al menos un número</li>
-            <li [class.valid]="hasSpecialChar">✓ Al menos un carácter especial (&#64;$!%*?&)</li>
-          </ul>
+
+        <!-- REQUISITOS -->
+        <!-- BARRA DE FUERZA -->
+        <div class="password-strength-wrapper" *ngIf="registerForm.get('password')?.value">
+
+          <div class="strength-bar">
+            <div class="strength-fill" [style.width.%]="passwordStrengthPercentage" [ngClass]="strengthClass">
+            </div>
+          </div>
+
+          <span class="strength-text" [ngClass]="strengthClass">
+            Seguridad: {{ passwordStrengthLabel }}
+          </span>
+
         </div>
       </div>
 
+      <!-- CONFIRM PASSWORD -->
       <div class="form-group">
         <label for="confirmPassword">Confirmar Contraseña</label>
-        <input formControlName="confirmPassword" id="confirmPassword"
-          [type]="showRegisterPassword ? 'text' : 'password'" placeholder="••••••••"
+        <input id="confirmPassword" [type]="showRegisterPassword ? 'text' : 'password'"
+          formControlName="confirmPassword" placeholder="••••••••"
           [class.invalid]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
-        <div class="error-message" *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch'] && registerForm.get('confirmPassword')?.touched">
+        <div class="error-message" *ngIf="registerForm.get('confirmPassword')?.errors?.['passwordMismatch']">
           Las contraseñas no coinciden
         </div>
       </div>
@@ -110,11 +153,15 @@
       <button type="submit" class="register-btn" [disabled]="registerForm.invalid">
         Crear Cuenta
       </button>
+
     </form>
 
     <div class="login-link">
       ¿Ya tienes cuenta?
-      <a (click)="switchToLogin()" class="login-text">Inicia sesión aquí</a>
+      <span (click)="switchToLogin()" class="login-text">
+        Inicia sesión aquí
+      </span>
     </div>
+
   </div>
 </div>

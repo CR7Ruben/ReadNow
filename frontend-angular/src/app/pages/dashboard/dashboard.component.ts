@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -10,45 +12,35 @@ import { CommonModule } from '@angular/common';
 })
 export class DashboardComponent {
 
+  constructor(
+    public auth: AuthService,
+    private router: Router
+  ) {}
+
   books = [
     {
       thumbnail: 'https://covers.openlibrary.org/b/id/10521258-L.jpg',
       title: 'El Misterio del Faro',
-      author: 'Autor Desconocido'
+      author: 'Autor Desconocido',
+      premium: false
     },
     {
       thumbnail: 'https://covers.openlibrary.org/b/id/10958374-L.jpg',
       title: 'SUEÑOS de ACERO',
-      author: 'Autor Desconocido'
+      author: 'Autor Desconocido',
+      premium: true
     },
     {
       thumbnail: 'https://covers.openlibrary.org/b/id/11153220-L.jpg',
       title: 'La CIUDAD PERDIDA',
-      author: 'Autor Desconocido'
+      author: 'Autor Desconocido',
+      premium: true
     },
     {
       thumbnail: 'https://covers.openlibrary.org/b/id/8231856-L.jpg',
       title: 'Romance en París',
-      author: 'Autor Desconocido'
-    }
-  ];
-
-  featuredBooks = [
-    {
-      title: 'El Misterio del Faro',
-      color: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    },
-    {
-      title: 'SUEÑOS de ACERO',
-      color: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
-    },
-    {
-      title: 'La CIUDAD PERDIDA',
-      color: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-    },
-    {
-      title: 'Romance en París',
-      color: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'
+      author: 'Autor Desconocido',
+      premium: false
     }
   ];
 
@@ -66,4 +58,11 @@ export class DashboardComponent {
     { title: 'Vientos del Norte' }
   ];
 
+  goToBook(book: any) {
+    if (book.premium && !this.auth.isPremium()) {
+      this.router.navigate(['/premium']);
+    } else {
+      console.log('Abrir libro...');
+    }
+  }
 }
