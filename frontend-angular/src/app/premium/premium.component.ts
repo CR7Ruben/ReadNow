@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../core/services/auth.service';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-premium',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ToastModule],
   template: `
     <div class="premium-container">
       <h1>Plan Premium</h1>
@@ -73,7 +74,7 @@ export class PremiumComponent {
       severity: 'warn',
       summary: 'Acceso requerido',
       detail: 'Debes iniciar sesión primero',
-      life: 3000
+      life: 2000
     });
     return;
   }
@@ -87,7 +88,7 @@ export class PremiumComponent {
     severity: 'success',
     summary: '¡Felicidades!',
     detail: 'Ahora eres usuario PREMIUM 👑 de ReadNow',
-    life: 4000
+    life: 2000
   });
 }
 

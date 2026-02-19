@@ -4,11 +4,12 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractContro
 import { AuthService } from '../../core/services/auth.service';
 import { RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, ToastModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
