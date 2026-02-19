@@ -6,6 +6,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { MessageService } from 'primeng/api';
 import { providePrimeNG } from 'primeng/config';
 
+import Aura from '@primeng/themes/aura';
+
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -14,10 +16,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch()),
-    provideAnimations(), 
+    provideAnimations(),
     MessageService,
     providePrimeNG({
-      ripple: true
+      ripple: true,
+      theme: {
+        preset: Aura
+      }
     })
   ]
 };
