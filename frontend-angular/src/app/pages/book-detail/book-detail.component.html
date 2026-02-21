@@ -1,0 +1,14 @@
+<div *ngIf="loading">
+  ⏳ Cargando libro...
+</div>
+
+<div *ngIf="book && !loading">
+  <h1>{{ book.title }}</h1>
+  <p><strong>Autor:</strong> {{ book.author }}</p>
+
+  <img *ngIf="book.thumbnail" [src]="book.thumbnail" />
+
+  <p>{{ book.description }}</p>
+
+  <span *ngIf="book.premium">🔒 Solo Premium</span>
+</div>
