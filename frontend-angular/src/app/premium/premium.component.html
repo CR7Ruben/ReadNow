@@ -1,1 +1,345 @@
-<p>premium works!</p>
+<!-- ══════ BREADCRUMB ══════ -->
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <a routerLink="/home">Inicio</a>
+  <span>›</span>
+  <a routerLink="/catalog">Catálogo</a>
+  <span>›</span>
+  <span class="current">Suscripciones</span>
+</nav>
+
+<!-- ══════ MAIN ══════ -->
+<main>
+
+  <!-- Header -->
+  <div class="page-header">
+    <span class="tag-new"> Acceso ilimitado a miles de libros digitales</span>
+    <h1>Elige el plan perfecto<br>para <em>tu lectura</em></h1>
+    <p>Explora, lee y descubre sin límites. Cancela cuando quieras.</p>
+  </div>
+
+  <!-- Active plan banner -->
+  <div class="active-banner">
+    <div class="banner-left">
+      <div class="pulse-dot"></div>
+      <div>
+        <h3>Plan activo: <span>{{ activePlanName }}</span></h3>
+        <p>{{ activePlanDesc }}</p>
+      </div>
+    </div>
+    <span class="banner-icon">{{ bannerIcon }}</span>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-label">Filtrar planes</div>
+    <div class="filter-toggles">
+      <button
+        class="ftog"
+        [class.active-tog]="activeFilter === 'all'"
+        (click)="filterPlans('all')">Todos</button>
+      <button
+        class="ftog"
+        [class.active-tog]="activeFilter === 'basic'"
+        (click)="filterPlans('basic')">📖 Básico</button>
+      <button
+        class="ftog"
+        [class.active-tog]="activeFilter === 'premium'"
+        (click)="filterPlans('premium')">👑 Premium</button>
+    </div>
+    <div class="filter-status">
+      <button
+        class="fstatus"
+        [class.active-tog]="statusActive"
+        (click)="toggleStatusFilter()">
+        <span class="fstatus-dot" [class.dot-active]="statusActive"></span>
+        <span>{{ statusActive ? 'Estado: Activo' : 'Estado: Todos' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Plans grid -->
+  <div class="plans-grid">
+
+    <!-- BASIC -->
+    <div
+      class="plan-card"
+      [class.sel-basic]="currentPlan === 'basic'"
+      [class.hidden-card]="activeFilter === 'premium'"
+      data-type="basic">
+      <span
+        class="plan-pill"
+        [class.pill-active]="currentPlan === 'basic'"
+        [class.pill-free]="currentPlan !== 'basic'"
+        *ngIf="currentPlan === 'basic'">✓ Plan Actual</span>
+      <span class="plan-emoji">📖</span>
+      <div class="plan-name">Básico</div>
+      <div class="plan-price">$0 <sub>/ mes</sub></div>
+      <div class="plan-sub">Perfecto para lectores ocasionales</div>
+      <ul class="plan-feats">
+        <li><span class="fi">✅</span> Catálogo general de libros</li>
+        <li><span class="fi">✅</span> Vista previa de capítulos</li>
+        <li><span class="fi">✅</span> Hasta 3 libros al mes</li>
+        <li><span class="fi">✅</span> Biblioteca personal básica</li>
+        <li><span class="fi">🔒</span><span class="locked">Libros premium bloqueados</span></li>
+        <li><span class="fi">🔒</span><span class="locked">Sin descarga offline</span></li>
+        <li><span class="fi">🔒</span><span class="locked">Sin recomendaciones con IA</span></li>
+      </ul>
+      <button
+        class="plan-btn"
+        [class.btn-current]="currentPlan === 'basic'"
+        [class.btn-basic]="currentPlan === 'premium'"
+        [disabled]="currentPlan === 'basic'"
+        (click)="downgrade()">
+        {{ currentPlan === 'basic' ? 'Plan Actual' : 'Cambiar a Básico' }}
+      </button>
+    </div>
+
+    <!-- PREMIUM -->
+    <div
+      class="plan-card"
+      [class.sel-premium]="currentPlan === 'premium'"
+      [class.hidden-card]="activeFilter === 'basic'"
+      data-type="premium">
+      <span
+        class="plan-pill"
+        [class.pill-active]="currentPlan === 'premium'"
+        [class.pill-popular]="currentPlan !== 'premium'">
+        {{ currentPlan === 'premium' ? '✓ Plan Actual' : '⭐ Más Popular' }}
+      </span>
+      <span class="plan-emoji">👑</span>
+      <div class="plan-name">Premium</div>
+      <div class="plan-price">$99 <sub>/ mes</sub></div>
+      <div class="plan-sub">Para lectores apasionados</div>
+      <ul class="plan-feats">
+        <li><span class="fi">✅</span> Todo lo del plan Básico</li>
+        <li><span class="fi">✅</span> <strong>Libros premium ilimitados</strong></li>
+        <li><span class="fi">✅</span> Descarga y lectura offline</li>
+        <li><span class="fi">✅</span> Recomendaciones con IA</li>
+        <li><span class="fi">✅</span> Sin anuncios</li>
+        <li><span class="fi">✅</span> Historial de lectura completo</li>
+        <li><span class="fi">✅</span> Acceso anticipado a novedades</li>
+      </ul>
+      <button
+        class="plan-btn"
+        [class.btn-premium]="currentPlan !== 'premium'"
+        [class.btn-current]="currentPlan === 'premium'"
+        [disabled]="currentPlan === 'premium'"
+        (click)="openModal()">
+        {{ currentPlan === 'premium' ? 'Plan Actual' : '🚀 Obtener Premium' }}
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Route Guard section -->
+  <div class="guard-section">
+    <h2>🔐 Control de Acceso por Suscripción</h2>
+    <p class="guard-desc">Las rutas protegidas por <strong>Angular Guards</strong> validan tu suscripción antes de permitir el acceso al contenido.</p>
+    <div class="routes-grid">
+      <div class="route-card" *ngFor="let route of routes">
+        <span class="route-icon">{{ route.icon }}</span>
+        <div class="route-name">{{ route.name }}</div>
+        <div class="route-path">{{ route.path }}</div>
+        <span class="route-status" [ngClass]="getRouteStatusClass(route)">
+          {{ getRouteStatusLabel(route) }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ══════ MODAL ══════ -->
+<div class="overlay" [class.open]="modalOpen" (click)="onOverlayClick($event)">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <h2>👑 Activar Plan Premium</h2>
+      <p>Simulación educativa de pago · ReadNow</p>
+      <button class="modal-close" (click)="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- STEP INDICATOR -->
+      <div class="steps">
+        <div class="step" [ngClass]="getStepClass(1)">
+          <span class="step-num">1</span> Tarjeta
+        </div>
+        <div class="step" [ngClass]="getStepClass(2)">
+          <span class="step-num">2</span> Verificar
+        </div>
+        <div class="step" [ngClass]="getStepClass(3)">
+          <span class="step-num">3</span> Confirmar
+        </div>
+      </div>
+
+      <!-- PAYMENT FORM -->
+      <div *ngIf="!paymentSuccess">
+
+        <!-- CREDIT CARD 3D -->
+        <div class="card-scene">
+          <div class="card-inner" [class.flipped]="cardFlipped">
+            <div class="card-face card-front">
+              <div class="cf-chip">
+                <div></div><div></div><div></div><div></div>
+              </div>
+              <div class="cf-brand">ReadNow</div>
+              <div class="cf-num">{{ cardNumberDisplay }}</div>
+              <div class="cf-info">
+                <div>
+                  <div class="cf-label">Titular</div>
+                  <div class="cf-val">{{ cardNameDisplay }}</div>
+                </div>
+                <div>
+                  <div class="cf-label">Válida hasta</div>
+                  <div class="cf-val">{{ cardExpDisplay }}</div>
+                </div>
+              </div>
+            </div>
+            <div class="card-face card-back">
+              <div class="cb-stripe"></div>
+              <div class="cb-cvv-wrap">
+                <div class="cb-cvv-label">CVV / CVC</div>
+                <div class="cb-cvv-box">{{ cardCvvDisplay }}</div>
+              </div>
+              <div class="cb-note">Tarjeta de simulación educativa. Sin cargos reales.</div>
+              <div class="cb-brand">ReadNow</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FORM -->
+        <form [formGroup]="paymentForm" (ngSubmit)="processPayment()" novalidate>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Nombre del titular</label>
+              <input
+                type="text"
+                formControlName="cardName"
+                placeholder="Ej. María García"
+                maxlength="26"
+                (focus)="cardFlipped = false"
+                [class.ok]="isFieldValid('cardName')"
+                [class.bad]="isFieldInvalid('cardName')">
+              <span class="ferr" *ngIf="isFieldInvalid('cardName')">
+                Ingresa el nombre completo (mín. 3 letras)
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Número de tarjeta</label>
+              <input
+                type="text"
+                formControlName="cardNumber"
+                placeholder="0000 0000 0000 0000"
+                maxlength="19"
+                (focus)="cardFlipped = false"
+                [class.ok]="isFieldValid('cardNumber')"
+                [class.bad]="isFieldInvalid('cardNumber')">
+              <span class="ferr" *ngIf="isFieldInvalid('cardNumber')">
+                Ingresa los 16 dígitos correctamente
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row two">
+            <div class="field">
+              <label>Fecha de vencimiento</label>
+              <input
+                type="text"
+                formControlName="cardExpiry"
+                placeholder="MM/AA"
+                maxlength="5"
+                (focus)="cardFlipped = false"
+                [class.ok]="isFieldValid('cardExpiry')"
+                [class.bad]="isFieldInvalid('cardExpiry')">
+              <span class="ferr" *ngIf="isFieldInvalid('cardExpiry')">
+                Formato inválido (MM/AA)
+              </span>
+            </div>
+            <div class="field">
+              <label>CVV</label>
+              <input
+                type="password"
+                formControlName="cardCvv"
+                placeholder="•••"
+                maxlength="3"
+                (focus)="cardFlipped = true"
+                (blur)="cardFlipped = false"
+                [class.ok]="isFieldValid('cardCvv')"
+                [class.bad]="isFieldInvalid('cardCvv')">
+              <span class="ferr" *ngIf="isFieldInvalid('cardCvv')">
+                CVV debe tener 3 dígitos
+              </span>
+            </div>
+          </div>
+
+          <!-- CAPTCHA -->
+          <div class="captcha-box">
+            <div class="captcha-title">🤖 Verificación humana (CAPTCHA)</div>
+            <div class="captcha-challenge">
+              <span class="captcha-eq">{{ captchaA }} + {{ captchaB }} = ?</span>
+              <button type="button" class="captcha-refresh" (click)="newCaptcha()" title="Nueva pregunta">🔄</button>
+            </div>
+            <div class="captcha-input-row">
+              <input
+                type="number"
+                class="captcha-input"
+                [(ngModel)]="captchaInput"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="Escribe el resultado..."
+                (input)="checkCaptcha()"
+                [class.ok]="captchaCorrect === true"
+                [class.bad]="captchaCorrect === false && captchaInput !== null">
+              <span class="captcha-status">
+                {{ captchaCorrect === true ? '✅' : captchaCorrect === false && captchaInput !== null ? '❌' : '⬜' }}
+              </span>
+            </div>
+            <div class="captcha-err" *ngIf="captchaCorrect === false && captchaInput !== null">
+              Respuesta incorrecta. Intenta de nuevo.
+            </div>
+          </div>
+
+          <!-- ORDER SUMMARY -->
+          <div class="summary">
+            <div class="sum-row"><span>Plan Premium ReadNow</span><span>$99.00 MXN</span></div>
+            <div class="sum-row"><span>Cupón: primer mes</span><span class="sum-green">— $0.00</span></div>
+            <div class="sum-row"><span>Total a cobrar hoy</span><span>$99.00 MXN</span></div>
+          </div>
+
+          <button
+            type="submit"
+            class="pay-btn"
+            [disabled]="isProcessing">
+            <div class="spinner" *ngIf="isProcessing"></div>
+            <span>{{ isProcessing ? 'Procesando pago...' : '🔒 Confirmar Pago Simulado' }}</span>
+          </button>
+          <p class="pay-note">⚠️ Simulación · Sin cargos reales · Datos no almacenados</p>
+        </form>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="success-screen" *ngIf="paymentSuccess">
+        <div class="success-ring">✓</div>
+        <h3>¡Pago Procesado!</h3>
+        <p>Tu membresía <strong>Premium</strong> ha sido activada.<br>Ahora tienes acceso ilimitado a toda la biblioteca digital.</p>
+        <div class="receipt">
+          <div class="receipt-title">🧾 Comprobante de simulación</div>
+          <div class="rec-row"><span>Plan adquirido</span><span><strong>Premium ReadNow</strong></span></div>
+          <div class="rec-row"><span>Titular</span><span>{{ receipt.name }}</span></div>
+          <div class="rec-row"><span>Tarjeta</span><span>{{ receipt.card }}</span></div>
+          <div class="rec-row"><span>Fecha de activación</span><span>{{ receipt.date }}</span></div>
+          <div class="rec-row"><span>Folio</span><span class="rec-id">{{ receipt.folio }}</span></div>
+          <div class="rec-row"><span>Total cobrado</span><span><strong>$99.00 MXN</strong></span></div>
+        </div>
+        <button class="done-btn" (click)="activatePremium()">👑 Ir a mi Biblioteca Premium</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════ PRIMENG TOAST (reemplaza el snackbar) ══════ -->
+<p-toast position="bottom-center" [life]="3000"></p-toast>
