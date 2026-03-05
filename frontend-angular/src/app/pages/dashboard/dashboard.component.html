@@ -1,31 +1,30 @@
-<!-- CONTENIDO PRINCIPAL -->
-<div class="rn-container">
+<div class="rn-books-container">
+
   <main class="rn-main">
 
-    <!-- HERO -->
+    <!-- HERO / CARRUSEL -->
     <section class="rn-hero">
+
       <h1 class="rn-title">Tu Momento de lectura ha llegado</h1>
       <h2 class="rn-subtitle">Descubre Nuevos Libros</h2>
 
-      <!-- CAROUSEL -->
       <div class="rn-carousel">
-        <button class="rn-arrow">‹</button>
 
-        <div
-           class="rn-book"
-           *ngFor="let b of books"
-           (click)="goToBook(b)"
-        >
+        <button class="rn-arrow" (click)="prevBooks()">‹</button>
 
-          <!-- LIBROS -->
-          <div class="rn-book" *ngFor="let b of books" [class.locked]="b.premium && !auth.isPremium()"
-            (click)="goToBook(b)">
+        <div class="rn-books-container">
+
+          <div
+            class="rn-book"
+            *ngFor="let b of carouselBooks"
+            [class.locked]="b.premium && !auth.isPremium()"
+            (click)="goToBook(b)"
+          >
 
             <img [src]="b.thumbnail" alt="Portada del libro">
 
-            <!-- OVERLAY PREMIUM -->
             <div class="lock-overlay" *ngIf="b.premium && !auth.isPremium()">
-              🔒 Solo Premium
+              🔒 Premium
             </div>
 
             <div class="rn-book-overlay">
@@ -34,12 +33,13 @@
             </div>
 
           </div>
-          <!-- FIN LIBROS -->
 
         </div>
 
-        <button class="rn-arrow">›</button>
+        <button class="rn-arrow" (click)="nextBooks()">›</button>
+
       </div>
+
     </section>
 
     <!-- SIDEBAR -->
@@ -47,34 +47,34 @@
 
       <!-- RECOMENDADOS -->
       <div class="rn-sidebar-section">
-        <h3 class="rn-sidebar-title">Recomendados para Ti</h3>
+        <h3>Recomendados</h3>
 
-        <div class="rn-recommended-list">
-          <div class="rn-recommended-item" *ngFor="let rec of recommendedBooks">
-
-            <div class="rn-rec-dot"></div>
-            <span>{{rec.title}}</span>
-
-          </div>
+        <div *ngFor="let rec of recommendedBooks" class="rn-recommended-item"
+             [class.locked]="rec.premium && !auth.isPremium()"
+             (click)="goToBook(rec)">
+          <div class="rn-rec-dot"></div>
+          {{rec.title}}
+          <span *ngIf="rec.premium && !auth.isPremium()">🔒</span>
         </div>
+
       </div>
 
       <!-- POPULARES -->
       <div class="rn-sidebar-section">
-        <h3 class="rn-sidebar-title">Más Populares</h3>
+        <h3>Más Populares</h3>
 
-        <div class="rn-recommended-list">
-          <div class="rn-recommended-item" *ngFor="let pop of popularBooks">
-
-            <div class="rn-rec-dot"></div>
-            <span>{{pop.title}}</span>
-
-          </div>
+        <div *ngFor="let pop of popularBooks" class="rn-recommended-item"
+             [class.locked]="pop.premium && !auth.isPremium()"
+             (click)="goToBook(pop)">
+          <div class="rn-rec-dot"></div>
+          {{pop.title}}
+          <span *ngIf="pop.premium && !auth.isPremium()">🔒</span>
         </div>
+
       </div>
 
     </div>
-    <!-- FIN SIDEBAR -->
 
   </main>
+
 </div>
