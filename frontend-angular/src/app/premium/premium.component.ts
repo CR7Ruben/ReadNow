@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule }                 from '@angular/common';
-import { ReactiveFormsModule, FormsModule,
-         FormBuilder, FormGroup,
-         Validators, AbstractControl }  from '@angular/forms';
-import { RouterModule }                 from '@angular/router';
-import { MessageService }               from 'primeng/api';
-import { ToastModule }                  from 'primeng/toast';
+import { CommonModule } from '@angular/common';
+import {
+  ReactiveFormsModule, FormsModule,
+  FormBuilder, FormGroup,
+  Validators, AbstractControl
+} from '@angular/forms';
+import { RouterModule } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 
 import { AuthService } from '../core/services/auth.service';
 
@@ -40,8 +42,8 @@ function nameValidator(control: AbstractControl) {
 
 
 @Component({
-  selector:    'app-premium',
-  standalone:  true,
+  selector: 'app-premium',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -49,9 +51,9 @@ function nameValidator(control: AbstractControl) {
     RouterModule,
     ToastModule,
   ],
-  providers:   [MessageService],
+  providers: [MessageService],
   templateUrl: './premium.component.html',
-  styleUrls:   ['./premium.component.scss'],
+  styleUrls: ['./premium.component.scss'],
 })
 export class PremiumComponent implements OnInit, OnDestroy {
 
@@ -77,14 +79,14 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Routes
   routes: RouteItem[] = [
-    { icon: '🏠', name: 'Inicio',             path: '/home',            requiresPremium: false },
-    { icon: '📚', name: 'Catálogo',           path: '/catalog',         requiresPremium: false },
-    { icon: '👁️', name: 'Vista previa',       path: '/book/preview',    requiresPremium: false },
-    { icon: '📖', name: 'Leer completo',      path: '/book/read',       requiresPremium: true  },
-    { icon: '⬇️', name: 'Descargar',          path: '/book/download',   requiresPremium: true  },
-    { icon: '🤖', name: 'Recomendaciones IA', path: '/recommendations', requiresPremium: true  },
-    { icon: '📊', name: 'Historial completo', path: '/history',         requiresPremium: true  },
-    { icon: '⚙️', name: 'Perfil / Config',    path: '/profile',         requiresPremium: false },
+    { icon: '🏠', name: 'Inicio', path: '/home', requiresPremium: false },
+    { icon: '📚', name: 'Catálogo', path: '/catalog', requiresPremium: false },
+    { icon: '👁️', name: 'Vista previa', path: '/book/preview', requiresPremium: false },
+    { icon: '📖', name: 'Leer completo', path: '/book/read', requiresPremium: true },
+    { icon: '⬇️', name: 'Descargar', path: '/book/download', requiresPremium: true },
+    { icon: '🤖', name: 'Recomendaciones IA', path: '/recommendations', requiresPremium: true },
+    { icon: '📊', name: 'Historial completo', path: '/history', requiresPremium: true },
+    { icon: '⚙️', name: 'Perfil / Config', path: '/profile', requiresPremium: false },
   ];
 
   getRouteStatusClass(route: RouteItem): string {
@@ -96,11 +98,17 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return this.currentPlan === 'premium' ? '👑 Desbloqueado' : '🔒 Premium';
   }
 
+<<<<<<< HEAD
   // Modal
   modalOpen      = false;
   isProcessing   = false;
+=======
+  // ── Modal ─────────────────────────────────────────────────────
+  modalOpen = false;
+  isProcessing = false;
+>>>>>>> 080f1bb909979c69e85624ed4fd103b940fd7990
   paymentSuccess = false;
-  cardFlipped    = false;
+  cardFlipped = false;
 
   receipt: Receipt = { name: '', card: '', date: '', folio: '' };
 
@@ -127,10 +135,17 @@ export class PremiumComponent implements OnInit, OnDestroy {
     return v ? '•'.repeat(v.length) : '•••';
   }
 
+<<<<<<< HEAD
    
   captchaA       = 0;
   captchaB       = 0;
   captchaInput:   number | null  = null;
+=======
+  // ── CAPTCHA ───────────────────────────────────────────────────
+  captchaA = 0;
+  captchaB = 0;
+  captchaInput: number | null = null;
+>>>>>>> 080f1bb909979c69e85624ed4fd103b940fd7990
   captchaCorrect: boolean | null = null;
 
   currentStep = 1;
@@ -144,10 +159,15 @@ export class PremiumComponent implements OnInit, OnDestroy {
   private payTimer: any;
 
   constructor(
+<<<<<<< HEAD
     public  auth:           AuthService,  
     private fb:             FormBuilder,
+=======
+    public auth: AuthService,   // public → accesible en template
+    private fb: FormBuilder,
+>>>>>>> 080f1bb909979c69e85624ed4fd103b940fd7990
     private messageService: MessageService,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.buildForm();
@@ -161,16 +181,16 @@ export class PremiumComponent implements OnInit, OnDestroy {
   // Form 
   private buildForm(): void {
     this.paymentForm = this.fb.group({
-      cardName:   ['', [Validators.required, nameValidator]],
+      cardName: ['', [Validators.required, nameValidator]],
       cardNumber: ['', [Validators.required, cardNumberValidator]],
       cardExpiry: ['', [Validators.required, expiryValidator]],
-      cardCvv:    ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
+      cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
     });
 
     // Número
     this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
       if (!v) return;
-      const clean     = v.replace(/\D/g, '').slice(0, 16);
+      const clean = v.replace(/\D/g, '').slice(0, 16);
       const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
       if (formatted !== v)
         this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
@@ -199,21 +219,21 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   private updateStep(): void {
     const cardOk =
-      this.paymentForm.get('cardName')!.valid   &&
+      this.paymentForm.get('cardName')!.valid &&
       this.paymentForm.get('cardNumber')!.valid &&
       this.paymentForm.get('cardExpiry')!.valid &&
       this.paymentForm.get('cardCvv')!.valid;
 
     this.currentStep = (cardOk && this.captchaCorrect) ? 3
-                     : cardOk                          ? 2
-                     : 1;
+      : cardOk ? 2
+        : 1;
   }
 
   
   newCaptcha(): void {
-    this.captchaA       = Math.floor(Math.random() * 10) + 1;
-    this.captchaB       = Math.floor(Math.random() * 10) + 1;
-    this.captchaInput   = null;
+    this.captchaA = Math.floor(Math.random() * 10) + 1;
+    this.captchaB = Math.floor(Math.random() * 10) + 1;
+    this.captchaInput = null;
     this.captchaCorrect = null;
     this.updateStep();
   }
@@ -229,13 +249,13 @@ export class PremiumComponent implements OnInit, OnDestroy {
     if (!this.auth.getUser()) {
       this.messageService.add({
         severity: 'warn',
-        summary:  'Acceso requerido',
-        detail:   'Debes iniciar sesión primero',
-        life:     3000,
+        summary: 'Acceso requerido',
+        detail: 'Debes iniciar sesión primero',
+        life: 3000,
       });
       return;
     }
-    this.modalOpen   = true;
+    this.modalOpen = true;
     this.cardFlipped = false;
     document.body.style.overflow = 'hidden';
   }
@@ -253,8 +273,8 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   private resetModal(): void {
     this.paymentSuccess = false;
-    this.isProcessing   = false;
-    this.currentStep    = 1;
+    this.isProcessing = false;
+    this.currentStep = 1;
     this.paymentForm.reset();
     this.newCaptcha();
   }
@@ -267,29 +287,29 @@ export class PremiumComponent implements OnInit, OnDestroy {
     if (!this.captchaCorrect) {
       this.messageService.add({
         severity: 'warn',
-        summary:  'CAPTCHA incompleto',
-        detail:   'Completa la verificación antes de continuar',
-        life:     3000,
+        summary: 'CAPTCHA incompleto',
+        detail: 'Completa la verificación antes de continuar',
+        life: 3000,
       });
       return;
     }
 
     this.isProcessing = true;
-    this.currentStep  = 3;
+    this.currentStep = 3;
 
     const name = this.paymentForm.get('cardName')!.value.trim().toUpperCase();
-    const num  = this.paymentForm.get('cardNumber')!.value.replace(/\s/g, '');
+    const num = this.paymentForm.get('cardNumber')!.value.replace(/\s/g, '');
 
     this.payTimer = setTimeout(() => {
       this.receipt = {
         name,
-        card:  `•••• •••• •••• ${num.slice(-4)}`,
-        date:  new Date().toLocaleDateString('es-MX', {
+        card: `•••• •••• •••• ${num.slice(-4)}`,
+        date: new Date().toLocaleDateString('es-MX', {
           year: 'numeric', month: 'long', day: 'numeric'
         }),
         folio: 'RN-' + Date.now().toString(36).toUpperCase(),
       };
-      this.isProcessing   = false;
+      this.isProcessing = false;
       this.paymentSuccess = true;
     }, 2200);
   }
@@ -303,9 +323,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.closeModal();
     this.messageService.add({
       severity: 'success',
-      summary:  '¡Felicidades!',
-      detail:   'Ahora eres usuario PREMIUM 👑 de ReadNow',
-      life:     4000,
+      summary: '¡Felicidades!',
+      detail: 'Ahora eres usuario PREMIUM 👑 de ReadNow',
+      life: 4000,
     });
   }
 
@@ -319,9 +339,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     }
     this.messageService.add({
       severity: 'info',
-      summary:  'Plan cambiado',
-      detail:   'Has vuelto al plan Básico',
-      life:     3000,
+      summary: 'Plan cambiado',
+      detail: 'Has vuelto al plan Básico',
+      life: 3000,
     });
   }
 
@@ -329,9 +349,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.activeFilter = type;
     this.messageService.add({
       severity: 'info',
-      summary:  'Filtro aplicado',
-      detail:   type === 'all' ? 'Mostrando todos los planes.' : `Filtrando: plan ${type}.`,
-      life:     2500,
+      summary: 'Filtro aplicado',
+      detail: type === 'all' ? 'Mostrando todos los planes.' : `Filtrando: plan ${type}.`,
+      life: 2500,
     });
   }
 
@@ -339,8 +359,8 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.statusActive = !this.statusActive;
     this.messageService.add({
       severity: 'info',
-      summary:  'Filtro de estado',
-      detail:   this.statusActive
+      summary: 'Filtro de estado',
+      detail: this.statusActive
         ? 'Mostrando suscripciones activas.'
         : 'Mostrando todas las suscripciones.',
       life: 2500,

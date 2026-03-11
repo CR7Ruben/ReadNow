@@ -154,25 +154,44 @@ export class NavbarComponent {
   }
 
   login() {
-    if (this.form.valid) {
-      this.auth.login({
-        id: Date.now(),
-        name: 'Usuario',
-        role: 'FREE'
-      });
 
-      this.showLogin = false;
-      this.showRegister = false;
+    if (this.form.invalid) return;
 
-      this.form.reset();
+    const data = {
+      correo: this.form.value.email,
+      password: this.form.value.password
+    };
 
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Bienvenido',
-        detail: 'Has iniciado sesión correctamente',
-        life: 2000
-      });
-    }
+    this.auth.loginBackend(data).subscribe({
+      next: (res: any) => {
+
+        this.auth.saveSession(res.user, res.token);
+
+        this.showLogin = false;
+        this.showRegister = false;
+
+        this.form.reset();
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Bienvenido',
+          detail: 'Has iniciado sesión correctamente',
+          life: 2000
+        });
+
+      },
+      error: () => {
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Correo o contraseña incorrectos',
+          life: 2000
+        });
+
+      }
+    });
+
   }
   /* ================= REGISTRO ================= */
 
@@ -198,28 +217,43 @@ export class NavbarComponent {
   }
 
   onRegister() {
-    if (this.registerForm.valid) {
 
-      const userData = {
-        id: Date.now(),
-        name: this.registerForm.get('username')?.value,
-        role: 'FREE' as const
-      };
+    if (this.registerForm.invalid) return;
 
-      this.auth.login(userData);
+    const data = {
+      nombre: this.registerForm.value.username,
+      correo: this.registerForm.value.email,
+      password: this.registerForm.value.password
+    };
 
-      this.showRegister = false;
-      this.showLogin = false;
+    this.auth.register(data).subscribe({
 
-      this.registerForm.reset();
+      next: () => {
 
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Registro exitoso',
-        detail: '¡Cuenta creada exitosamente! Bienvenido a ReadNow 🚀',
-        life: 2000
-      });
-    }
+        this.showRegister = false;
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Registro exitoso',
+          detail: 'Cuenta creada correctamente',
+          life: 2000
+        });
+
+        this.switchToLogin();
+
+      },
+
+      error: () => {
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo registrar',
+          life: 2000
+        });
+
+      }
+
+    });
   }
-
 }

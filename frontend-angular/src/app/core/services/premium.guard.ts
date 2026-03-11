@@ -1,14 +1,17 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
 
-export const premiumGuard: CanActivateFn = () => {
+export const premiumGuard = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
-
-  if (auth.isPremium()) {
-    return true;
+  if (!auth.isLogged()) {
+    router.navigate(['/']);
+    return false;
   }
-
-  return router.createUrlTree(['/premium']);
+  if (!auth.isPremium() && !auth.isAdmin()) {
+    router.navigate(['/premium']);
+    return false;
+  }
+  return true;
 };
