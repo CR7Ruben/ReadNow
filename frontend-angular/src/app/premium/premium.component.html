@@ -178,7 +178,7 @@
           <div class="form-row">
             <div class="field">
               <label>Nombre del titular</label>
-              <input type="text" formControlName="cardName" placeholder="Ej. María García" maxlength="26"
+              <input type="text" formControlName="cardName" placeholder="Ej. María García" maxlength="30"
                 (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardName')"
                 [class.bad]="isFieldInvalid('cardName')">
               <span class="ferr" *ngIf="isFieldInvalid('cardName')">
@@ -190,7 +190,7 @@
           <div class="form-row">
             <div class="field">
               <label>Número de tarjeta</label>
-              <input type="text" formControlName="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19"
+              <input type="text" formControlName="cardNumber" placeholder="0000 0000 0000 0000" maxlength="16"
                 (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardNumber')"
                 [class.bad]="isFieldInvalid('cardNumber')">
               <span class="ferr" *ngIf="isFieldInvalid('cardNumber')">

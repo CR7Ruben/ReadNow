@@ -166,13 +166,13 @@ export class PremiumComponent implements OnInit, OnDestroy {
       cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
     });
 
-    // Número
-    this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
+    // Nombre (solo letras y espacios)
+    this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
       if (!v) return;
-      const clean = v.replace(/\D/g, '').slice(0, 16);
-      const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
-      if (formatted !== v)
-        this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
+      const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').slice(0, 16);
+      if (clean !== v) {
+        this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
+      }
     });
 
     // Vencimiento
