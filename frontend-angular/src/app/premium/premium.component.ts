@@ -159,33 +159,72 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Form 
   private buildForm(): void {
-    this.paymentForm = this.fb.group({
-      cardName: ['', [Validators.required, nameValidator]],
-      cardNumber: ['', [Validators.required, cardNumberValidator]],
-      cardExpiry: ['', [Validators.required, expiryValidator]],
-      cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
-    });
+  this.paymentForm = this.fb.group({
+    cardName: ['', [Validators.required, nameValidator]],
+    cardNumber: ['', [Validators.required, cardNumberValidator]],
+    cardExpiry: ['', [Validators.required, expiryValidator]],
+    cardCvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]],
+  });
 
-    // Nombre (solo letras y espacios)
-    this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
-      if (!v) return;
-      const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-      if (clean !== v) {
-        this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
-      }
-    });
+  // ─────────────────────────────
+  // Nombre → SOLO LETRAS
+  // ─────────────────────────────
+  this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
 
-    // Vencimiento
-    this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
-      if (!v) return;
-      let clean = v.replace(/\D/g, '').slice(0, 4);
-      if (clean.length >= 3) clean = clean.slice(0, 2) + '/' + clean.slice(2);
-      if (clean !== v)
-        this.paymentForm.get('cardExpiry')!.setValue(clean, { emitEvent: false });
-    });
+    const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
 
-    this.paymentForm.valueChanges.subscribe(() => this.updateStep());
-  }
+    if (clean !== v) {
+      this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
+    }
+  });
+
+  // ─────────────────────────────
+  // Número de tarjeta → SOLO NÚMEROS
+  // ─────────────────────────────
+  this.paymentForm.get('cardNumber')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
+
+    const clean = v.replace(/\D/g, '').slice(0, 16);
+    const formatted = clean.replace(/(\d{4})(?=\d)/g, '$1 ');
+
+    if (formatted !== v) {
+      this.paymentForm.get('cardNumber')!.setValue(formatted, { emitEvent: false });
+    }
+  });
+
+  // ─────────────────────────────
+  // Fecha → SOLO NÚMEROS (MM/AA)
+  // ─────────────────────────────
+  this.paymentForm.get('cardExpiry')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
+
+    let clean = v.replace(/\D/g, '').slice(0, 4);
+
+    if (clean.length >= 3) {
+      clean = clean.slice(0, 2) + '/' + clean.slice(2);
+    }
+
+    if (clean !== v) {
+      this.paymentForm.get('cardExpiry')!.setValue(clean, { emitEvent: false });
+    }
+  });
+
+  // ─────────────────────────────
+  // CVV → SOLO NÚMEROS
+  // ─────────────────────────────
+  this.paymentForm.get('cardCvv')!.valueChanges.subscribe((v: string) => {
+    if (!v) return;
+
+    const clean = v.replace(/\D/g, '').slice(0, 3);
+
+    if (clean !== v) {
+      this.paymentForm.get('cardCvv')!.setValue(clean, { emitEvent: false });
+    }
+  });
+
+  this.paymentForm.valueChanges.subscribe(() => this.updateStep());
+}
 
   isFieldValid(field: string): boolean {
     const c = this.paymentForm.get(field);

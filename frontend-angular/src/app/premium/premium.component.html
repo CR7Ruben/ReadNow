@@ -190,7 +190,7 @@
           <div class="form-row">
             <div class="field">
               <label>Número de tarjeta</label>
-              <input type="text" formControlName="cardNumber" placeholder="0000 0000 0000 0000" maxlength="16"
+              <input type="text" formControlName="cardNumber" placeholder="0000 0000 0000 0000" maxlength="19"
                 (focus)="cardFlipped = false" [class.ok]="isFieldValid('cardNumber')"
                 [class.bad]="isFieldInvalid('cardNumber')">
               <span class="ferr" *ngIf="isFieldInvalid('cardNumber')">
