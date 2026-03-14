@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export interface User {
   id: number;
   name: string;
+  email: string;
   role: 'FREE' | 'PREMIUM' | 'ADMIN';
 }
 
@@ -32,11 +33,18 @@ export class AuthService {
   register(data: any) {
     return this.http.post<any>(`${this.apiUrl}/register`, data);
   }
+  updateProfile(data: any) {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+    return this.http.put<any>(`${this.apiUrl}/update`, data, { headers });
+  }
   saveSession(user: any, token: string) {
 
     const mappedUser: User = {
       id: Number(user.id_usuario),
       name: user.nombre,
+      email: user.correo || 'usuario@readnow.com',
       role: user.role ?? 'FREE'
     };
     this.user = mappedUser;
