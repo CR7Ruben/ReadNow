@@ -169,7 +169,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
     // Nombre (solo letras y espacios)
     this.paymentForm.get('cardName')!.valueChanges.subscribe((v: string) => {
       if (!v) return;
-      const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '').slice(0, 16);
+      const clean = v.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
       if (clean !== v) {
         this.paymentForm.get('cardName')!.setValue(clean, { emitEvent: false });
       }
@@ -276,6 +276,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
     this.isProcessing = true;
     this.currentStep = 3;
 
+    const expiry = this.paymentForm.get('cardExpiry')!.value;
+    const year = expiry.split('/')[1];
+
     const name = this.paymentForm.get('cardName')!.value.trim().toUpperCase();
     const num = this.paymentForm.get('cardNumber')!.value.replace(/\s/g, '');
 
@@ -295,6 +298,7 @@ export class PremiumComponent implements OnInit, OnDestroy {
 
   // Activar premium
   activatePremium(): void {
+
     const user = this.auth.getUser();
 
     if (!user) {
@@ -307,7 +311,9 @@ export class PremiumComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const userId = user.id || user.id; // <- importante
+    console.log("USER COMPLETO:", user);
+
+    const userId = user.id;
 
     if (!userId) {
       this.messageService.add({
@@ -319,17 +325,33 @@ export class PremiumComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.subscriptionService.updateRole(userId, 'PREMIUM')
+    const expiry = this.paymentForm.get('cardExpiry')!.value;
+    const year = expiry.split('/')[1];
+
+    const cardNumber = this.paymentForm.get('cardNumber')!.value;
+    const cvv = this.paymentForm.get('cardCvv')!.value;
+
+    this.subscriptionService.updateRole(
+      userId,
+      'PREMIUM',
+      year,
+      cardNumber,
+      cvv
+    )
       .subscribe({
         next: (res) => {
+
           this.auth.saveSession(res.user, this.auth.getToken()!);
+
           this.closeModal();
+
           this.messageService.add({
             severity: 'success',
             summary: '🎉 ¡Felicidades!',
             detail: 'Ahora eres usuario PREMIUM 👑',
             life: 3000
           });
+
         },
         error: () => {
           this.messageService.add({

@@ -18,25 +18,20 @@ export class AuthService {
   private token: string | null = null;
 
   constructor(private http: HttpClient) {
-
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
-
     if (storedUser) this.user = JSON.parse(storedUser);
     if (storedToken) this.token = storedToken;
 
   }
 
   /* ================= BACKEND ================= */
-
   loginBackend(data: any) {
     return this.http.post<any>(`${this.apiUrl}/login`, data);
   }
-
   register(data: any) {
     return this.http.post<any>(`${this.apiUrl}/register`, data);
   }
-
   saveSession(user: any, token: string) {
 
     const mappedUser: User = {
@@ -44,10 +39,8 @@ export class AuthService {
       name: user.nombre,
       role: user.role ?? 'FREE'
     };
-
     this.user = mappedUser;
     this.token = token;
-    
     localStorage.setItem('user', JSON.stringify(mappedUser));
     localStorage.setItem('token', token);
   }
@@ -55,45 +48,32 @@ export class AuthService {
   /* ================= LOGIN LOCAL ================= */
 
   login(user: User) {
-
     this.user = user;
-
     localStorage.setItem('user', JSON.stringify(user));
-
   }
 
   /* ================= LOGOUT ================= */
-
   logout() {
-
     this.user = null;
     this.token = null;
-
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-
   }
 
   /* ================= GETTERS ================= */
-
   getUser(): User | null {
     return this.user;
   }
-
   getToken(): string | null {
     return this.token;
   }
-
   isLogged(): boolean {
     return !!this.user;
   }
-
   isAdmin(): boolean {
     return this.user?.role === 'ADMIN';
   }
-
   isPremium(): boolean {
     return this.user?.role === 'PREMIUM';
   }
-
 }
