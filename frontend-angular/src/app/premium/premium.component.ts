@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule, FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { SubscriptionService } from '../core/services/subscription.service';
@@ -145,8 +145,17 @@ export class PremiumComponent implements OnInit, OnDestroy {
     public auth: AuthService,   // public → accesible en template
     private fb: FormBuilder,
     private messageService: MessageService,
-    private subscriptionService: SubscriptionService
+    private subscriptionService: SubscriptionService,
+    private router: Router
   ) { }
+
+  goToHome() {
+    this.router.navigate(['/home']);
+  }
+
+  goToCatalog() {
+    this.router.navigate(['/catalog']);
+  }
 
   ngOnInit(): void {
     this.buildForm();
