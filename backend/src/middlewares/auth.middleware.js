@@ -34,7 +34,6 @@ export const requirePremium = (req, res, next) => {
   }
   next();
 };
-
 export const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -49,7 +48,8 @@ export const authenticateToken = (req, res, next) => {
                 message: "Token inválido o expirado"
             });
         }
+
         req.user = decoded;
         next();
     });
-};
+} 
