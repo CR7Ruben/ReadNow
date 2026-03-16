@@ -1,24 +1,30 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { BooksService } from '../../core/services/books.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService, SubscriptionInfo } from '../../core/services/auth.service';
 import { LoggerService } from '../../core/services/logger.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
 
   books: any[] = [];
+
   carouselBooks: any[] = [];
 
   recommendedBooks: any[] = [];
   popularBooks: any[] = [];
+
+  searchQuery = '';
+  searchResults: any[] = [];
+  subscriptionInfo: SubscriptionInfo | null = null;
 
   startIndex = 0;
   visibleBooks = 5;
@@ -27,15 +33,10 @@ export class DashboardComponent implements OnInit {
     private bookService: BooksService,
     private router: Router,
     public auth: AuthService,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) { }
-
-  goToHome() {
-
-    this.logger.log('Usuario navegó a Home desde Dashboard');
-
-    this.router.navigate(['/home']);
-  }
 
   ngOnInit() {
 
@@ -57,18 +58,77 @@ export class DashboardComponent implements OnInit {
 
       // Populares: siguientes 5
         this.popularBooks = data.slice(5, 10);
-
         this.logger.info('Secciones de libros inicializadas');
-
       },
-
       error: (error) => {
-
         this.logger.error('Error al obtener libros del servicio', error);
-
       }
 
     });
+
+    // Cargar información del plan del usuario
+    this.loadSubscriptionInfo();
+  }
+
+  /* 📊 CARGAR INFORMACIÓN DEL PLAN */
+  loadSubscriptionInfo() {
+    this.auth.getSubscription().subscribe({
+      next: (info) => {
+        this.subscriptionInfo = info;
+        this.forceUpdate();
+      },
+      error: (error) => {
+        console.error('Error cargando información del plan:', error);
+        this.subscriptionInfo = null;
+        this.forceUpdate();
+      }
+    });
+  }
+
+  /* 🔎 BUSCAR LIBROS */
+  searchBooks() {
+    console.log('🔍 Iniciando búsqueda con query:', this.searchQuery);
+    
+    if (!this.searchQuery.trim()) {
+      console.log('🔍 Query vacío, limpiando resultados');
+      this.searchResults = [];
+      this.forceUpdate();
+      return;
+    }
+
+    console.log('🔍 Llamando a bookService.searchBooks con:', this.searchQuery);
+    
+    this.bookService.searchBooks(this.searchQuery)
+      .subscribe({
+        next: (data) => {
+          console.log('🔍 Respuesta recibida:', data);
+          this.searchResults = data || [];
+          console.log('🔥 Datos asignados. Length:', this.searchResults.length);
+          console.log('🔥 Resultados completos:', this.searchResults);
+          // Forzar actualización con NgZone
+          this.forceUpdate();
+        },
+        error: (error) => {
+          console.error('❌ Error en búsqueda:', error);
+          this.searchResults = [];
+          this.forceUpdate();
+        }
+      });
+  }
+
+  /* 🔄 FORZAR ACTUALIZACIÓN CON NGZONE */
+  forceUpdate() {
+    this.ngZone.run(() => {
+      this.cdr.detectChanges();
+      setTimeout(() => this.cdr.detectChanges(), 0);
+    });
+  }
+
+  /*  LIMPIAR BÚSQUEDA */
+  clearSearch() {
+    this.searchQuery = '';
+    this.searchResults = [];
+    this.forceUpdate();
   }
 
   // Carrusel
