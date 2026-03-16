@@ -462,13 +462,19 @@ main {
 
 // Back
 .card-back { background: linear-gradient(135deg, #0d1b3e, #0a2a5e); transform: rotateY(180deg); }
-.cb-stripe { position: absolute; top: 34px; left: 0; right: 0; height: 44px; background: rgba(0,0,0,0.7); }
+.cb-stripe { position: absolute; top: 34px; left: 0; right: 0; height: 40px; background: rgba(0,0,0,0.7); }
 .cb-cvv-wrap { position: absolute; top: 92px; left: 24px; right: 24px; }
 .cb-cvv-label { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 5px; }
-.cb-cvv-box { background: #fff; color: var(--g800); border-radius: 6px; padding: 9px 12px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; text-align: right; letter-spacing: 4px; min-height: 38px; }
+
+//aqui we
+.cb-cvv-box { background: #fff; color: var(--g800); border-radius: 6px; padding: 0px 0px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; text-align: right; letter-spacing: 4px; min-height: 5px; }
+//otro ejemplo
+// .cb-cvv-box { background: #fff; color: var(--g800); border-radius: 6px; padding: 9px 12px; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 700; text-align: right; letter-spacing: 4px; min-height: 38px; }
+
+
+
 .cb-brand { position: absolute; bottom: 18px; right: 22px; color: rgba(255,255,255,0.55); font-family: 'Playfair Display', serif; font-size: 13px; letter-spacing: 1px; }
 .cb-note  { position: absolute; bottom: 18px; left: 22px; font-size: 9px; color: rgba(255,255,255,0.3); max-width: 170px; line-height: 1.5; }
-
 .form-row { display: grid; gap: 14px; margin-bottom: 14px; &.two { grid-template-columns: 1fr 1fr; } }
 .field {
   display: flex; flex-direction: column; gap: 5px;

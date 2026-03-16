@@ -167,7 +167,10 @@
                 <div class="cb-cvv-label">CVV / CVC</div>
                 <div class="cb-cvv-box">{{ cardCvvDisplay }}</div>
               </div>
-              <div class="cb-note">Tarjeta de simulación educativa. Sin cargos reales.</div>
+              <div class="cb-note">
+                <br>
+                Tarjeta de simulación educativa. Sin cargos reales.
+              </div>
               <div class="cb-brand">ReadNow</div>
             </div>
           </div>
@@ -212,7 +215,9 @@
             <div class="field cvv-field">
               <div class="field cvv-field">
                 <label>CVV</label>
-                <input type="text" maxlength="3" formControlName="cardCvv" />
+                <input type="text" placeholder="Ingresa el CVV" maxlength="3" formControlName="cardCvv" (focus)="cardFlipped = true"
+                  (blur)="cardFlipped = false" [class.ok]="isFieldValid('cardCvv')"
+                  [class.bad]="isFieldInvalid('cardCvv')" />
                 <button type="button" class="cvv-btn" (click)="generateCVV()">
                   🔒 Generar CVV
                 </button>
@@ -310,11 +315,8 @@
         <button class="cancel-btn confirm" (click)="confirmDowngrade()">
           Cancelar suscripción
         </button>
-
       </div>
-
     </div>
-
   </div>
 </div>
 <p-toast position="bottom-center" [life]="3000" styleClass="readnow-toast"></p-toast>
