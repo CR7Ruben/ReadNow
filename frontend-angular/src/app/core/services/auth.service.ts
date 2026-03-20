@@ -7,6 +7,7 @@ export interface User {
   name: string;
   email: string;
   role: 'FREE' | 'PREMIUM' | 'ADMIN';
+  createdAt?: string;
 }
 
 export interface SubscriptionInfo {
@@ -59,10 +60,10 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}/register`, data);
   }
   updateProfile(data: any) {
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.token}`
-    });
-    return this.http.put<any>(`${this.apiUrl}/update`, data, { headers });
+    return this.http.put<any>(`${this.apiUrl}/update`, data);
+  }
+  deleteAccount() {
+    return this.http.delete<any>(`${this.apiUrl}/delete`);
   }
   saveSession(user: any, token: string) {
     // Validar que el usuario y token existan
@@ -75,7 +76,8 @@ export class AuthService {
       id: Number(user.id_usuario),
       name: user.nombre || 'Usuario',
       email: user.correo || 'usuario@readnow.com',
-      role: user.role ?? 'FREE'
+      role: user.role ?? 'FREE',
+      createdAt: user.fecha_creacion || null
     };
     
     this.user = mappedUser;
@@ -97,6 +99,8 @@ export class AuthService {
     this.token = null;
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    sessionStorage.removeItem('lastActiveTime');
+    sessionStorage.removeItem('appInitialized');
   }
 
   /* ================= GETTERS ================= */

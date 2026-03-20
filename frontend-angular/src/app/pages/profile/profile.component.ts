@@ -19,6 +19,7 @@ export class ProfileComponent {
   isEditMode = false;
   editForm!: FormGroup;
   showEditPassword = false;
+  showDeleteModal = false;
 
   constructor(
     public auth: AuthService, 
@@ -131,6 +132,53 @@ export class ProfileComponent {
     this.router.navigate(['/home']);
   }
 
+  // Eliminar cuenta
+  deleteAccount() {
+    this.showDeleteModal = true;
+  }
+
+  // Confirmar eliminación de cuenta
+  confirmDeleteAccount() {
+    this.showDeleteModal = false;
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Eliminando cuenta...',
+      detail: 'Por favor espera mientras eliminamos tus datos',
+      life: 3000
+    });
+
+    this.auth.deleteAccount().subscribe({
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Cuenta eliminada',
+          detail: 'Tu cuenta ha sido eliminada exitosamente. Toda tu información personal, historial de lectura y datos han sido eliminados permanentemente.',
+          life: 5000
+        });
+
+        // Cerrar sesión y redirigir al home
+        setTimeout(() => {
+          this.auth.logout();
+          window.location.href = '/home';
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Error al eliminar cuenta:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al eliminar cuenta',
+          detail: 'No se pudo eliminar tu cuenta. Inténtalo nuevamente.',
+          life: 3000
+        });
+      }
+    });
+  }
+
+  // Cancelar eliminación
+  cancelDeleteAccount() {
+    this.showDeleteModal = false;
+  }
+
   // Cerrar sesión
   logout() {
 
@@ -214,21 +262,32 @@ export class ProfileComponent {
     // Detectar cambios reales comparando con datos actuales
     const currentName = this.userInfo?.name || '';
     const currentEmail = this.userInfo?.email || '';
-
+    
+    console.log('Datos actuales del usuario:', {
+      name: currentName,
+      email: currentEmail
+    });
+    
     const updateData: any = {};
 
     // Solo agregar campos que realmente cambiaron
     if (this.editForm.value.name && this.editForm.value.name !== currentName) {
       updateData.name = this.editForm.value.name;
+      console.log('Se detectó cambio de nombre');
     }
 
     if (this.editForm.value.email && this.editForm.value.email !== currentEmail) {
       updateData.email = this.editForm.value.email;
+      console.log('Se detectó cambio de email');
     }
 
     if (this.editForm.value.password) {
       updateData.password = this.editForm.value.password;
+      console.log('Se detectó cambio de password');
     }
+    
+    console.log('UpdateData final:', updateData);
+    console.log('Object.keys(updateData).length:', Object.keys(updateData).length);
 
     // Si no hay cambios reales
     if (Object.keys(updateData).length === 0) {
@@ -266,25 +325,12 @@ export class ProfileComponent {
 
       // Actualizar datos del usuario en el frontend
         if (response.user) {
-
-      // Actualizar el usuario en el AuthService
+          // Actualizar el usuario en el AuthService con el nuevo token
           this.auth.saveSession(response.user, this.auth.getToken()!);
-
-          this.logger.log('Sesión actualizada con nuevos datos');
-        }
-
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Perfil actualizado',
-          detail: 'Tu información ha sido actualizada correctamente',
-          life: 3000
-        });
-
-      // Si se actualizó correo o contraseña, cerrar sesión automáticamente
-        if (updateData.email || updateData.password) {
-
-          this.logger.warn('Cambio sensible detectado, cerrando sesión');
-
+          
+          // Si hay cambios reales, cerrar sesión automáticamente por seguridad
+        if (Object.keys(updateData).length > 0) {
+          console.log('Se detectaron cambios - cerrando sesión');
           this.messageService.add({
             severity: 'info',
             summary: 'Sesión cerrada',
@@ -304,9 +350,10 @@ export class ProfileComponent {
           }, 3500);
 
         } else {
-
-      // Salir del modo edición solo si no se cambió correo/contraseña
+          console.log('No se detectaron cambios - manteniendo sesión');
+          // Salir del modo edición solo si no se cambió correo/contraseña
           this.isEditMode = false;
+        }
         }
       },
 
