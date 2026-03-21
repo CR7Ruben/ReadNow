@@ -15,10 +15,6 @@ import { LoggerService } from '../../core/services/logger.service';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-goToNotifications() {
-throw new Error('Method not implemented.');
-}
-
   showLogin = false;
   showRegister = false;
   showProfileDropdown = false;

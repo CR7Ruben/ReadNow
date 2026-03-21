@@ -1,92 +1,154 @@
-const pool = require('../config/db');
-const axios = require('axios');
-
-// OBTENER LIBROS
-exports.getBooks = async (req, res) => {
-  const response = await axios.get('https://gutendex.com/books?search=popular');
-  res.json(response.data.results.slice(0, 10));
+const categoryMap = {
+  'Fiction': 'fiction',
+  "Children's Literature": 'children',
+  'Mystery': 'mystery',
+  'Science Fiction': 'science fiction',
+  'Fantasy': 'fantasy',
+  'Romance': 'romance',
+  'History': 'history',
+  'Biography': 'biography',
+  'Science': 'science',
+  'Poetry': 'poetry',
+  'Drama': 'drama',
+  'Adventure': 'adventure',
+  'Short Stories': 'short stories',
+  'Philosophy': 'philosophy',
+  'Music': 'music',
+  'Composers': 'composers'
 };
 
-// BUSCAR
-exports.search = async (req, res) => {
-  const { query } = req.query;
-  const response = await axios.get(`https://gutendex.com/books?search=${query}`);
-  res.json(response.data.results);
+const formatBook = (book, index) => ({
+  id: book.id.toString(),
+  title: book.title || 'Título desconocido',
+  author: book.authors?.[0]?.name || 'Autor desconocido',
+  thumbnail: book.formats?.['image/jpeg'] || book.formats?.['image/png'] || null,
+  premium: index % 3 === 0,
+  downloadCount: book.download_count || 0,
+  subjects: book.subjects?.slice(0, 3) || []
+});
+
+export const getBooks = async (req, res) => {
+  try {
+    console.log('📚 Obteniendo libros desde Gutenberg...');
+    const startTime = Date.now();
+
+    const response = await fetch('https://gutendex.com/books');
+    const data = await response.json();
+
+    console.log('📊 Datos recibidos de Gutenberg:', data.results?.length || 0, 'libros');
+
+    const books = data.results?.slice(0, 20).map(formatBook) || [];
+
+    const endTime = Date.now();
+    console.log(`⏱️ Tiempo de respuesta: ${endTime - startTime}ms`);
+    console.log('📚 Enviando', books.length, 'libros al frontend');
+
+    res.json(books);
+  } catch (error) {
+    console.error('❌ Error fetching books from Gutenberg:', error);
+    res.status(500).json({ message: 'Error al obtener libros' });
+  }
 };
 
-// SUSCRIPCIÓN
-exports.getSubscription = async (req, res) => {
-  const userId = req.user.id;
+export const searchBooks = async (req, res) => {
+  try {
+    const query = req.query.query || '';
+    if (!query) {
+      return res.json([]);
+    }
 
-  const user = await pool.query(
-    'SELECT role FROM usuarios WHERE id_usuario = $1',
-    [userId]
-  );
+    const response = await fetch(`https://gutendex.com/books?search=${encodeURIComponent(query)}`);
+    const data = await response.json();
 
-  const role = user.rows[0]?.role || 'FREE';
-  const esPremium = role === 'PREMIUM';
+    const books = data.results?.slice(0, 10).map(formatBook) || [];
 
-  const historial = await pool.query(
-    `SELECT COUNT(*) FROM historial_libros
-     WHERE usuario_id = $1
-     AND DATE_TRUNC('month', fecha_lectura) = DATE_TRUNC('month', CURRENT_DATE)`,
-    [userId]
-  );
+    res.json(books);
+  } catch (error) {
+    console.error('Error searching books from Gutenberg:', error);
+    res.status(500).json({ message: 'Error en la búsqueda' });
+  }
+};
 
-  const leidos = parseInt(historial.rows[0].count);
-  const limite = esPremium ? 9999 : 1;
+export const getBooksByCategory = async (req, res) => {
+  try {
+    const { category } = req.params;
+    const searchQuery = categoryMap[category] || category;
+
+    const response = await fetch(`https://gutendex.com/books?search=${encodeURIComponent(searchQuery)}`);
+    const data = await response.json();
+
+    const books = data.results?.slice(0, 20).map(formatBook) || [];
+
+    res.json(books);
+  } catch (error) {
+    console.error('Error fetching books by category from Gutenberg:', error);
+    res.status(500).json({ message: 'Error al obtener libros por categoría' });
+  }
+};
+
+export const getBookById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const response = await fetch(`https://gutendex.com/books/${id}`);
+    const book = await response.json();
+
+    const bookDetail = {
+      id: book.id?.toString() || id,
+      title: book.title || 'Título desconocido',
+      author: book.authors?.[0]?.name || 'Autor desconocido',
+      thumbnail: book.formats?.['image/jpeg'] || book.formats?.['image/png'] || null,
+      description: book.description?.substring(0, 500) || 'Sin descripción disponible',
+      premium: false,
+      downloadCount: book.download_count || 0,
+      subjects: book.subjects?.slice(0, 5) || [],
+      languages: book.languages?.map(lang => lang.code) || [],
+      downloadLinks: book.formats || {}
+    };
+
+    res.json(bookDetail);
+  } catch (error) {
+    console.error('Error fetching book details from Gutenberg:', error);
+    res.status(500).json({ message: 'Error al obtener detalles del libro' });
+  }
+};
+
+export const getPublicBookById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const response = await fetch(`https://gutendex.com/books/${id}`);
+    const book = await response.json();
+
+    const bookDetail = {
+      id: book.id?.toString() || id,
+      title: book.title || 'Título desconocido',
+      author: book.authors?.[0]?.name || 'Autor desconocido',
+      thumbnail: book.formats?.['image/jpeg'] || book.formats?.['image/png'] || null,
+      description: book.description?.substring(0, 500) || 'Sin descripción disponible',
+      premium: false,
+      downloadCount: book.download_count || 0,
+      subjects: book.subjects?.slice(0, 5) || [],
+      languages: book.languages?.map(lang => lang.code) || [],
+      downloadLinks: book.formats || {}
+    };
+
+    res.json(bookDetail);
+  } catch (error) {
+    console.error('Error fetching public book details from Gutenberg:', error);
+    res.status(500).json({ message: 'Error al obtener detalles del libro' });
+  }
+};
+
+export const getSubscriptionInfo = (req, res) => {
+  const isPremium = req.user.role === 'PREMIUM';
 
   res.json({
-    tipoPlan: role,
-    limite,
-    leidos,
-    restantes: esPremium ? 'Ilimitado' : Math.max(0, limite - leidos)
+    tieneSuscripcion: isPremium,
+    tipoPlan: isPremium ? 'PREMIUM' : 'FREE',
+    limiteDiario: isPremium ? -1 : 3,
+    leidosHoy: 1,
+    restantesHoy: isPremium ? -1 : 2,
+    esPremium: isPremium
   });
-};
-
-// LEER LIBRO
-exports.readBook = async (req, res) => {
-  const userId = req.user.id;
-  const { bookId } = req.params;
-
-  const user = await pool.query(
-    'SELECT role FROM usuarios WHERE id_usuario = $1',
-    [userId]
-  );
-
-  const esPremium = user.rows[0]?.role === 'PREMIUM';
-
-  const historial = await pool.query(
-    `SELECT COUNT(*) FROM historial_libros
-     WHERE usuario_id = $1
-     AND DATE_TRUNC('month', fecha_lectura) = DATE_TRUNC('month', CURRENT_DATE)`,
-    [userId]
-  );
-
-  const leidos = parseInt(historial.rows[0].count);
-
-  if (!esPremium && leidos >= 1) {
-    return res.status(403).json({
-      message: 'Límite alcanzado. Pasa a PREMIUM'
-    });
-  }
-
-  const response = await axios.get(`https://gutendex.com/books/${bookId}`);
-  const book = response.data;
-
-  await pool.query(
-    `INSERT INTO historial_libros
-     (usuario_id, book_id, titulo, autor, imagen, link_lectura, fecha_lectura)
-     VALUES($1,$2,$3,$4,$5,$6,NOW())`,
-    [
-      userId,
-      bookId,
-      book.title,
-      book.authors[0]?.name || 'Autor',
-      book.formats['image/jpeg'],
-      book.formats['text/html']
-    ]
-  );
-
-  res.json(book);
 };

@@ -1,50 +1,43 @@
 import jwt from 'jsonwebtoken';
 
-// 🔐 VERIFICAR TOKEN
+const JWT_SECRET = 'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI';
+
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
+  console.log('🔑 Verificando token - Header:', authHeader ? authHeader.substring(0, 50) + '...' : 'null');
+
   if (!authHeader) {
-    return res.status(401).json({
-      message: 'Token requerido'
-    });
+    console.log('❌ Token requerido - No hay header de autorización');
+    return res.status(401).json({ message: 'Token requerido' });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, 'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI');
-    console.log('Token decodificado:', decoded);
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log('✅ Token decodificado:', {
+      id_usuario: decoded.id_usuario,
+      email: decoded.email,
+      role: decoded.role
+    });
 
-    // Compatibilidad con ambos formatos de token
-    if (decoded.id_usuario) {
-      req.user = decoded;
-    } else if (decoded.id) {
-      // Convertir token antiguo al nuevo formato
-      req.user = {
-        ...decoded,
-        id_usuario: decoded.id
-      };
-    } else {
-      throw new Error('Token sin información de usuario');
-    }
-
+    req.user = {
+      id_usuario: decoded.id_usuario,
+      email: decoded.email,
+      role: decoded.role
+    };
     next();
   } catch (error) {
-    console.log('Error al verificar token:', error.message);
-    return res.status(401).json({
-      message: 'Token inválido'
-    });
+    console.log('❌ Error verificando token:', error.message);
+    return res.status(401).json({ message: 'Token inválido' });
   }
 };
 
-// SOLO PREMIUM
-export const requirePremium = (req, res, next) => {
-  if (req.user?.role !== 'PREMIUM') {
-    return res.status(403).json({
-      message: 'Necesitas ser PREMIUM para acceder'
-    });
-  }
-
-  next();
+export const generateToken = (user) => {
+  return jwt.sign(
+    { id_usuario: user.id_usuario, email: user.correo, role: user.role },
+    JWT_SECRET,
+    { expiresIn: '2h' }
+  );
 };

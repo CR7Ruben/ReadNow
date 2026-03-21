@@ -1,12 +1,13 @@
-import express from 'express';
-import { register, login, updateProfile, deleteAccount } from '../controllers/auth.controller.js';
+import { Router } from 'express';
 import { verifyToken } from '../middlewares/auth.middleware.js';
+import * as authController from '../controllers/auth.controller.js';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/login', login);
-router.post('/register', register);
-router.put('/update', verifyToken, updateProfile);
-router.delete('/delete', verifyToken, deleteAccount);
+router.post('/login', authController.login);
+router.post('/register', authController.register);
+router.put('/update', verifyToken, authController.updateProfile);
+router.delete('/delete', verifyToken, authController.deleteAccount);
+router.get('/test', authController.test);
 
 export default router;

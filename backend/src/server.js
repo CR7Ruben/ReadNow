@@ -3,16 +3,15 @@ import cors from 'cors';
 
 import authRoutes from './routes/auth.routes.js';
 import bookRoutes from './routes/books.routes.js';
-import favRoutes from './routes/favoritos.routes.js';
-import historialRoutes from './routes/historial.routes.js';
-import subscriptionRoutes from './routes/subscription.routes.js';
-import categoriasRoutes from './routes/categorias.routes.js';
+import usersRoutes from './routes/users.routes.js';
+import lecturaRoutes from './routes/lectura.routes.js';
+import dbRoutes from './routes/db.routes.js';
 
 const app = express();
 
-// Configuración de CORS más específica
+// Configuración de CORS
 const corsOptions = {
-  origin: ['http://localhost:4200', 'http://127.0.0.1:4200'],
+  origin: ['http://localhost:4200', 'http://localhost:4201', 'http://127.0.0.1:4200', 'http://127.0.0.1:4201'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -21,14 +20,14 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/books', bookRoutes);
-app.use('/api/favoritos', favRoutes);
-app.use('/api/historial', historialRoutes);
-app.use('/api/subscription', subscriptionRoutes);
-app.use('/api/categorias', categoriasRoutes);
+app.use('/api/users', usersRoutes);
+app.use('/api/books/read', lecturaRoutes);
+app.use('/api', dbRoutes);
 
-// Manejador de errores global para respuestas JSON
+// Error handler
 app.use((err, req, res, next) => {
   console.error('Error no manejado:', err);
   res.status(500).json({
@@ -37,15 +36,16 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Manejador para rutas no encontradas
+// 404 handler
 app.use((req, res) => {
-  res.status(404).json({
-    message: 'Ruta no encontrada'
-  });
+  res.status(404).json({ message: 'Ruta no encontrada' });
 });
 
 const PORT = 5036;
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`🚀 Servidor ReadNow corriendo en http://localhost:${PORT}`);
+  console.log(`📚 API disponible en http://localhost:${PORT}/api`);
 });
+
+export default app;

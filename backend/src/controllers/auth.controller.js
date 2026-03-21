@@ -1,81 +1,108 @@
-import pool from '../config/db.js';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { pool } from '../config/db.js';
+import { generateToken } from '../middlewares/auth.middleware.js';
 
-const SECRET = "CLAVE_SUPER_SECRETA";
-
-// LOGIN
 export const login = async (req, res) => {
-  const { correo, password } = req.body;
-
   try {
+    const { correo, password } = req.body;
+
     const result = await pool.query(
       'SELECT * FROM usuarios WHERE correo = $1',
       [correo]
     );
 
-    if (result.rows.length === 0)
-      return res.status(401).json({ message: 'Usuario no encontrado' });
+    if (result.rows.length === 0) {
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
 
     const user = result.rows[0];
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    const valid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      console.log('❌ Contraseña incorrecta para usuario:', correo);
+      return res.status(401).json({ message: 'Credenciales inválidas' });
+    }
 
-    if (!valid)
-      return res.status(401).json({ message: 'Password incorrecto' });
+    console.log('✅ Contraseña verificada para usuario:', correo);
 
-    const token = jwt.sign(
-  {
-    id_usuario: user.id_usuario,
-    email: user.correo,
-    role: user.role // ESTO ES CLAVE
-  },
-  'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI',
-  { expiresIn: '2h' }
-);
+    const token = generateToken(user);
 
     res.json({
       token,
       user: {
-        id: user.id_usuario,
+        id_usuario: user.id_usuario,
         nombre: user.nombre,
         correo: user.correo,
         role: user.role
       }
     });
-
-  } catch (err) {
-    res.status(500).json(err);
+  } catch (error) {
+    console.error('Error en login:', error);
+    res.status(500).json({ message: 'Error en el servidor' });
   }
 };
 
-// REGISTER
 export const register = async (req, res) => {
-  const { correo, password } = req.body;
-
   try {
-    const hash = await bcrypt.hash(password, 10);
-    const nombre = correo.split('@')[0];
+    const { nombre, correo, password } = req.body;
 
-    const result = await pool.query(
-      `INSERT INTO usuarios(nombre, correo, password, role)
-       VALUES($1,$2,$3,'FREE') RETURNING *`,
-      [nombre, correo, hash]
+    console.log('📝 Intentando registrar usuario:', { nombre, correo });
+
+    if (!nombre || !correo || !password) {
+      return res.status(400).json({
+        message: 'Faltan campos requeridos: nombre, correo y password'
+      });
+    }
+
+    const existingUser = await pool.query(
+      'SELECT * FROM usuarios WHERE correo = $1',
+      [correo]
     );
 
-    res.json(result.rows[0]);
+    if (existingUser.rows.length > 0) {
+      console.log('⚠️ Usuario ya existe:', correo);
+      return res.status(400).json({ message: 'Usuario ya existe' });
+    }
 
-  } catch (err) {
-    res.status(500).json(err);
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    console.log('🔐 Contraseña encriptada correctamente');
+
+    const insertQuery = `
+      INSERT INTO usuarios (nombre, correo, password, role)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id_usuario, nombre, correo, role
+    `;
+
+    const result = await pool.query(insertQuery, [
+      nombre,
+      correo,
+      hashedPassword,
+      'FREE'
+    ]);
+
+    const newUser = result.rows[0];
+    console.log('✅ Usuario creado:', newUser);
+
+    res.json({
+      id_usuario: newUser.id_usuario,
+      nombre: newUser.nombre,
+      correo: newUser.correo,
+      role: newUser.role
+    });
+  } catch (error) {
+    console.error('❌ Error en registro:', error);
+    res.status(500).json({ message: 'Error en el servidor', error: error.message });
   }
 };
 
-// UPDATE PROFILE
 export const updateProfile = async (req, res) => {
-  const { name, email, password } = req.body;
-  const userId = req.user.id_usuario; // Corregido para coincidir con el token JWT
-
   try {
+    const { name, email, password } = req.body;
+    const userId = req.user.id_usuario;
+
+    console.log('📝 Actualizando perfil del usuario:', userId);
+
     let updateQuery = 'UPDATE usuarios SET ';
     const updateValues = [];
     const updates = [];
@@ -91,9 +118,9 @@ export const updateProfile = async (req, res) => {
     }
 
     if (password) {
-      const hash = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 10);
       updates.push('password = $' + (updates.length + 1));
-      updateValues.push(hash);
+      updateValues.push(hashedPassword);
     }
 
     if (updates.length === 0) {
@@ -110,6 +137,7 @@ export const updateProfile = async (req, res) => {
     }
 
     const updatedUser = result.rows[0];
+    console.log('✅ Perfil actualizado:', updatedUser);
 
     res.json({
       message: 'Perfil actualizado exitosamente',
@@ -120,18 +148,20 @@ export const updateProfile = async (req, res) => {
         role: updatedUser.role
       }
     });
-
-  } catch (err) {
-    console.error('Error al actualizar perfil:', err);
+  } catch (error) {
+    console.error('❌ Error al actualizar perfil:', error);
     res.status(500).json({ message: 'Error al actualizar el perfil' });
   }
 };
 
-// DELETE ACCOUNT
 export const deleteAccount = async (req, res) => {
-  const userId = req.user.id_usuario;
-
   try {
+    const userId = req.user.id_usuario;
+
+    console.log('🗑️ Eliminando cuenta del usuario:', userId);
+
+    await pool.query('DELETE FROM lectura_usuario WHERE id_usuario = $1', [userId]);
+
     const result = await pool.query(
       'DELETE FROM usuarios WHERE id_usuario = $1 RETURNING *',
       [userId]
@@ -141,10 +171,14 @@ export const deleteAccount = async (req, res) => {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
 
+    console.log('✅ Cuenta eliminada exitosamente');
     res.json({ message: 'Cuenta eliminada exitosamente' });
-
-  } catch (err) {
-    console.error('Error al eliminar cuenta:', err);
+  } catch (error) {
+    console.error('❌ Error al eliminar cuenta:', error);
     res.status(500).json({ message: 'Error al eliminar la cuenta' });
   }
+};
+
+export const test = (req, res) => {
+  res.json({ message: 'Backend funcionando correctamente' });
 };
