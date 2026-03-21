@@ -39,7 +39,6 @@ const verifyToken = (req, res, next) => {
   
   try {
     const decoded = jwt.verify(token, 'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI');
-<<<<<<< Updated upstream
     console.log('✅ Token decodificado:', { 
       id_usuario: decoded.id_usuario, 
       email: decoded.email, 
@@ -54,11 +53,6 @@ const verifyToken = (req, res, next) => {
     next();
   } catch (error) {
     console.log('❌ Error verificando token:', error.message);
-=======
-    req.user = decoded;
-    next();
-  } catch (error) {
->>>>>>> Stashed changes
     return res.status(401).json({ message: 'Token inválido' });
   }
 };
@@ -336,11 +330,7 @@ app.post('/api/auth/login', async (req, res) => {
     console.log('✅ Contraseña verificada para usuario:', correo);
     
     const token = jwt.sign(
-<<<<<<< Updated upstream
       { id_usuario: user.id_usuario, email: user.correo, role: user.role }, 
-=======
-      { id: user.id_usuario, email: user.correo, role: user.role }, // Usar id_usuario
->>>>>>> Stashed changes
       'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI',
       { expiresIn: '2h' }
     );
