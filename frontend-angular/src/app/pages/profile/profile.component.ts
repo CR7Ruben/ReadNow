@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, User } from '../../core/services/auth.service';
 import { Router } from '@angular/router';
@@ -6,6 +6,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, A
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { LoggerService } from '../../core/services/logger.service';
+import { ReadingHistoryService, ReadingHistoryItem } from '../../core/services/reading-history.service';
 
 @Component({
   selector: 'app-profile',
@@ -14,24 +15,56 @@ import { LoggerService } from '../../core/services/logger.service';
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
 
   isEditMode = false;
   editForm!: FormGroup;
   showEditPassword = false;
   showDeleteModal = false;
+  readingHistory: ReadingHistoryItem[] = [];
+  isLoadingHistory = false;
 
   constructor(
     public auth: AuthService,
     private messageService: MessageService,
     private router: Router,
     private fb: FormBuilder,
-    private logger: LoggerService
+    private logger: LoggerService,
+    private readingHistoryService: ReadingHistoryService
   ) {
     this.editForm = this.fb.group({
       nombre: ['', [Validators.minLength(8)]],
       correo: ['', [Validators.email]],
       password: ['', this.strongPasswordValidator]
+    });
+  }
+
+  ngOnInit() {
+    this.loadReadingHistory();
+  }
+
+  loadReadingHistory() {
+    if (!this.auth.getToken()) {
+      return;
+    }
+
+    this.isLoadingHistory = true;
+    this.readingHistoryService.getReadingHistory().subscribe({
+      next: (history) => {
+        this.readingHistory = history;
+        this.isLoadingHistory = false;
+        console.log('📚 Historial de lectura cargado:', history.length, 'libros');
+      },
+      error: (error) => {
+        console.error('❌ Error al cargar historial de lectura:', error);
+        this.isLoadingHistory = false;
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo cargar el historial de lectura',
+          life: 3000
+        });
+      }
     });
   }
 
@@ -274,5 +307,14 @@ export class ProfileComponent {
       correo: '',
       password: ''
     });
+  }
+
+  onImageError(event: any) {
+    // Si la imagen falla al cargar, mostramos un placeholder
+    event.target.style.display = 'none';
+    const placeholder = event.target.nextElementSibling;
+    if (placeholder && placeholder.classList.contains('no-cover-placeholder')) {
+      placeholder.style.display = 'flex';
+    }
   }
 }
