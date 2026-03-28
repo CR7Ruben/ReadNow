@@ -61,7 +61,7 @@ export class ProfileComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudo cargar el historial de lectura',
+          detail: 'Error al cargar el historial de lectura',
           life: 3000
         });
       }
