@@ -139,7 +139,7 @@
       <!-- NOMBRE -->
       <div class="form-group">
         <label for="username">Nombre Completo</label>
-        <input id="username" type="text" formControlName="username" placeholder="Juan Pérez"
+        <input id="username" type="text" formControlName="username" placeholder="Cristiano Ronaldo"
           [class.invalid]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
         <div class="error-message"
           *ngIf="registerForm.get('username')?.errors?.['minlength'] && registerForm.get('username')?.touched">

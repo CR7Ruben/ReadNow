@@ -23,6 +23,7 @@ export class ProfileComponent implements OnInit {
   showDeleteModal = false;
   readingHistory: ReadingHistoryItem[] = [];
   isLoadingHistory = false;
+isB: any;
 
   constructor(
     public auth: AuthService,

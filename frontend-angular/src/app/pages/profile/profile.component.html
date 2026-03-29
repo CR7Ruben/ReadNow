@@ -27,7 +27,7 @@
         <h1 class="profile-name">{{ userInfo?.nombre || 'Usuario' }}</h1>
         <p class="profile-email">{{ userInfo?.correo || 'usuario&#64;readnow.com' }}</p>
         <div class="profile-badges">
-          <span class="badge" [class.premium-badge]="isPremium" [class.admin-badge]="isAdmin">
+          <span class="profile-badge" [class.premium-badge]="isPremium" [class.admin-badge]="isAdmin" [class.basic-badge]="!isPremium && !isAdmin">
             {{ isPremium ? '👑 PREMIUM' : isAdmin ? '🛡️ ADMIN' : '📖 BÁSICO' }}
           </span>
         </div>
