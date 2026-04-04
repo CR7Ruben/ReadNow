@@ -33,7 +33,8 @@ export const login = async (req, res) => {
         id_usuario: user.id_usuario,
         nombre: user.nombre,
         correo: user.correo,
-        role: user.role
+        role: user.role,
+        fecha_creacion: user.fecha_creacion
       }
     });
   } catch (error) {
@@ -148,7 +149,8 @@ export const updateProfile = async (req, res) => {
         id_usuario: updatedUser.id_usuario,
         nombre: updatedUser.nombre,
         correo: updatedUser.correo,
-        role: updatedUser.role
+        role: updatedUser.role,
+        fecha_creacion: updatedUser.fecha_creacion
       }
     });
   } catch (error) {
