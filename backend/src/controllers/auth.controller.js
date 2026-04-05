@@ -19,11 +19,10 @@ export const login = async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      console.log('❌ Contraseña incorrecta para usuario:', correo);
       return res.status(401).json({ message: 'Credenciales inválidas' });
     }
 
-    console.log('✅ Contraseña verificada para usuario:', correo);
+    console.log('✅ Login exitoso');
 
     const token = generateToken(user);
 
@@ -47,7 +46,7 @@ export const register = async (req, res) => {
   try {
     const { nombre, correo, password } = req.body;
 
-    console.log('📝 Intentando registrar usuario:', { nombre, correo });
+    console.log('📝 Intentando registrar nuevo usuario');
 
     if (!nombre || !correo || !password) {
       return res.status(400).json({
@@ -61,7 +60,7 @@ export const register = async (req, res) => {
     );
 
     if (existingUser.rows.length > 0) {
-      console.log('⚠️ Usuario ya existe:', correo);
+      console.log('⚠️ Usuario ya existe');
       return res.status(400).json({ message: 'Usuario ya existe' });
     }
 
@@ -83,7 +82,7 @@ export const register = async (req, res) => {
     ]);
 
     const newUser = result.rows[0];
-    console.log('✅ Usuario creado:', newUser);
+    console.log('✅ Usuario creado');
 
     res.json({
       id_usuario: newUser.id_usuario,
@@ -105,7 +104,7 @@ export const updateProfile = async (req, res) => {
     const { password } = req.body;
     const userId = req.user.id_usuario;
 
-    console.log('📝 Actualizando perfil del usuario:', userId, { nombre, correo, password: !!password });
+    console.log('📝 Actualizando perfil del usuario:', userId);
 
     const updates = [];
     const updateValues = [];
@@ -141,7 +140,7 @@ export const updateProfile = async (req, res) => {
     }
 
     const updatedUser = result.rows[0];
-    console.log('✅ Perfil actualizado:', updatedUser);
+    console.log('✅ Perfil actualizado');
 
     res.json({
       message: 'Perfil actualizado exitosamente',
@@ -164,12 +163,22 @@ export const deleteAccount = async (req, res) => {
     const userId = req.user.id_usuario;
     console.log('🗑️ Eliminando cuenta del usuario:', userId);
 
+    // Eliminar datos relacionados primero
     try {
-      await pool.query('DELETE FROM lectura_usuario WHERE id_usuario = $1', [userId]);
+      await pool.query('DELETE FROM favoritos WHERE usuarioId = $1', [userId]);
+      console.log('🗑️ Favoritos eliminados');
     } catch (e) {
-      console.warn('⚠️ lectura_usuario:', e.message);
+      console.warn('⚠️ No se pudieron eliminar favoritos:', e.message);
     }
 
+    try {
+      await pool.query('DELETE FROM lectura_usuario WHERE id_usuario = $1', [userId]);
+      console.log('🗑️ Historial de lectura eliminado');
+    } catch (e) {
+      console.warn('⚠️ No se pudo eliminar historial:', e.message);
+    }
+
+    // Finalmente eliminar el usuario
     const result = await pool.query(
       'DELETE FROM usuarios WHERE id_usuario = $1 RETURNING *',
       [userId]
@@ -184,7 +193,7 @@ export const deleteAccount = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error al eliminar cuenta:', error.message);
-    res.status(500).json({ message: 'Error al eliminar la cuenta', detail: error.message });
+    res.status(500).json({ message: 'Error al eliminar la cuenta', error: error.message });
   }
 };
 

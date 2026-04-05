@@ -1,6 +1,11 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-const JWT_SECRET = 'EstaEsUnaClaveSuperSeguraParaJWT2026BibliotecaAPI';
+// Load environment variables
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_key_change_immediately';
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '2h';
 
 export const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -38,6 +43,6 @@ export const generateToken = (user) => {
   return jwt.sign(
     { id_usuario: user.id_usuario, email: user.correo, role: user.role },
     JWT_SECRET,
-    { expiresIn: '2h' }
+    { expiresIn: JWT_EXPIRES_IN }
   );
 };
